@@ -1,5 +1,10 @@
 import styles from './Searchbar.module.css';
-export const Searchbar = ({ onSubmitHandler }) => {
+export const Searchbar = ({ searchQueryHandler }) => {
+  const onSubmitHandler = e => {
+    e.preventDefault();
+    const inputVal = e.target.elements['searchInput'].value.trim();
+    searchQueryHandler(inputVal);
+  };
   return (
     <header className={styles.searchBar}>
       <form className={styles.searchForm} onSubmit={onSubmitHandler}>

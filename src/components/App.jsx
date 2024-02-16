@@ -16,9 +16,7 @@ class App extends Component {
     loadMore: false,
     selectedItem: null,
   };
-  onSubmitHandler = e => {
-    e.preventDefault();
-    const inputVal = e.target.elements['searchInput'].value.trim();
+  searchQueryHandler = inputVal => {
     this.setState({ galleryItems: null, query: inputVal, page: 1 });
   };
   componentDidUpdate = (prevProps, prevState) => {
@@ -75,7 +73,7 @@ class App extends Component {
           radius="12.5"
           wrapperClass="grid-wrapper"
         />
-        <Searchbar onSubmitHandler={this.onSubmitHandler} />
+        <Searchbar searchQueryHandler={this.searchQueryHandler} />
         {this.state.galleryItems && (
           <ImageGallery
             data={this.state.galleryItems}
