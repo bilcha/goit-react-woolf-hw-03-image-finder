@@ -1,7 +1,6 @@
 import axios from 'axios';
 
-//pixabay.com/api/?q=cat&page=1&key=your_key&image_type=photo&orientation=horizontal&per_page=12
-axios.defaults.baseURL = 'https://pixabay.com/api/';
+axios.defaults.baseURL = 'https://pixabay.co/api/';
 
 export const getGalleryItemsAPI = async (query, page) => {
   let queries = {

@@ -19,7 +19,6 @@ class App extends Component {
   onSubmitHandler = e => {
     e.preventDefault();
     const inputVal = e.target.elements['searchInput'].value.trim();
-    debugger;
     this.setState({ galleryItems: null, query: inputVal, page: 1 });
   };
   componentDidUpdate = (prevProps, prevState) => {
@@ -42,6 +41,7 @@ class App extends Component {
           ? [...prev.galleryItems, ...data.hits]
           : data.hits,
         loadMore: this.state.page < Math.ceil(data.totalHits / 12),
+        error: '',
       }));
     } catch (error) {
       console.log(error);
@@ -70,13 +70,18 @@ class App extends Component {
           radius="12.5"
           wrapperClass="grid-wrapper"
         />
-        {this.state.error && <h1>{this.state.error}</h1>}
         <Searchbar onSubmitHandler={this.onSubmitHandler} />
         {this.state.galleryItems && (
           <ImageGallery
             data={this.state.galleryItems}
             showFullImage={this.showFullImage}
           />
+        )}
+        {this.state.error && (
+          <h1 className="errorMessage">
+            {' '}
+            Oops... Something went wrong. Please try again later.
+          </h1>
         )}
         {this.state.loadMore && (
           <LoadMore loadMoreHandler={this.loadMoreHandler} />

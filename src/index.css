@@ -33,3 +33,7 @@ img {
   top: 50%;
   left: 50%;
 }
+
+.errorMessage {
+  text-align: center;
+}
