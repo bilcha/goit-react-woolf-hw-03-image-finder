@@ -41,11 +41,16 @@ class App extends Component {
           ? [...prev.galleryItems, ...data.hits]
           : data.hits,
         loadMore: this.state.page < Math.ceil(data.totalHits / 12),
-        error: '',
+        error:
+          data.hits.length === 0
+            ? "Sorry, we didn't find anything for your request."
+            : '',
       }));
     } catch (error) {
       console.log(error);
-      this.setState({ error: error.message });
+      this.setState({
+        error: 'Oops... Something went wrong. Please try again later.',
+      });
     } finally {
       this.setState({ loading: false });
     }
@@ -78,10 +83,7 @@ class App extends Component {
           />
         )}
         {this.state.error && (
-          <h1 className="errorMessage">
-            {' '}
-            Oops... Something went wrong. Please try again later.
-          </h1>
+          <h1 className="errorMessage">{this.state.error}</h1>
         )}
         {this.state.loadMore && (
           <LoadMore loadMoreHandler={this.loadMoreHandler} />
