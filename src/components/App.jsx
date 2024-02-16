@@ -1,62 +1,92 @@
 import { Component } from 'react';
-import ContactForm from './ContactForm/ContactForm';
-import { ContactList } from './ContactList/ContactList';
-import { Filter } from './Filter/Filter';
+import { Searchbar } from './Searchbar/Searchbar';
+import { ImageGallery } from './ImageGallery/ImageGallery';
+import { getGalleryItemsAPI } from './Helper/api';
+import { Grid } from 'react-loader-spinner';
+import { LoadMore } from './LoadMore/LoadMore';
+import Modal from './Modal/Modal';
 
 class App extends Component {
   state = {
-    contacts: [],
-    filter: '',
+    galleryItems: null,
+    query: '',
+    page: 1,
+    loading: false,
+    error: '',
+    loadMore: false,
+    selectedItem: null,
   };
-  addContact = newData => {
+  onSubmitHandler = e => {
+    e.preventDefault();
+    const inputVal = e.target.elements['searchInput'].value.trim();
+    debugger;
+    this.setState({ galleryItems: null, query: inputVal, page: 1 });
+  };
+  componentDidUpdate = (prevProps, prevState) => {
     if (
-      this.state.contacts.find(
-        item => item.name.toLowerCase() === newData.name.toLowerCase()
-      )
+      this.state.page !== prevState.page ||
+      this.state.query !== prevState.query
     ) {
-      alert(`${newData.name} is already in contacts.`);
-    } else {
-      this.setState(prev => ({
-        contacts: [newData, ...prev.contacts],
-      }));
+      this.getGalleryItems();
     }
   };
-
-  addFilter = e => {
-    const filterSymbols = e.target.value.toLowerCase();
-    this.setState({ filter: filterSymbols });
+  loadMoreHandler = () => {
+    this.setState(prev => ({ page: prev.page + 1 }));
   };
-  getFilteredItems = () => {
-    return this.state.contacts.filter(el => {
-      return el.name.toLowerCase().includes(this.state.filter);
-    });
+  getGalleryItems = async () => {
+    this.setState({ loading: true });
+    try {
+      const data = await getGalleryItemsAPI(this.state.query, this.state.page);
+      this.setState(prev => ({
+        galleryItems: prev.galleryItems
+          ? [...prev.galleryItems, ...data.hits]
+          : data.hits,
+        loadMore: this.state.page < Math.ceil(data.totalHits / 12),
+      }));
+    } catch (error) {
+      console.log(error);
+      this.setState({ error: error.message });
+    } finally {
+      this.setState({ loading: false });
+    }
   };
-  deleteContact = id => {
-    this.setState(prev => ({
-      contacts: prev.contacts.filter(el => el.id !== id),
-    }));
+  showFullImage = imageData => {
+    this.setState({ selectedItem: imageData });
+  };
+  closeModal = () => {
+    this.setState({ selectedItem: null });
   };
 
   render() {
-    const filteredContacts = this.getFilteredItems();
     return (
-      <div
-        style={{
-          color: '#010101',
-          padding: '20px',
-        }}
-      >
-        <h1>Phonebook</h1>
-        <ContactForm
-          addContact={this.addContact}
-          contacts={this.state.contacts}
+      <div>
+        <Grid
+          class="loader"
+          visible={this.state.loading}
+          height="80"
+          width="80"
+          color="#4354b0"
+          ariaLabel="grid-loading"
+          radius="12.5"
+          wrapperClass="grid-wrapper"
         />
-        <h2>Contacts</h2>
-        <Filter addFilter={this.addFilter} />
-        <ContactList
-          contactList={filteredContacts}
-          deleteContact={this.deleteContact}
-        />
+        {this.state.error && <h1>{this.state.error}</h1>}
+        <Searchbar onSubmitHandler={this.onSubmitHandler} />
+        {this.state.galleryItems && (
+          <ImageGallery
+            data={this.state.galleryItems}
+            showFullImage={this.showFullImage}
+          />
+        )}
+        {this.state.loadMore && (
+          <LoadMore loadMoreHandler={this.loadMoreHandler} />
+        )}
+        {this.state.selectedItem && (
+          <Modal
+            imageData={this.state.selectedItem}
+            closeModal={this.closeModal}
+          />
+        )}
       </div>
     );
   }

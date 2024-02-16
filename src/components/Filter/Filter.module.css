@@ -1,3 +1,0 @@
-.inputField {
-  composes: inputField from '../ContactForm/ContactForm.module.css'
-}
